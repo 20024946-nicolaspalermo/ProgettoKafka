@@ -4,8 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +25,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
+import retrofit2.http.POST;
 
 public class MainActivity extends AppCompatActivity {
     private TextView texvtViewResult;
@@ -31,36 +38,36 @@ public class MainActivity extends AppCompatActivity {
 
         texvtViewResult = findViewById(R.id.text_view_result);
 
-
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://localhost:8082/")
+                .baseUrl("http://192.168.1.47:8082/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
+
         KafkaApi kafkaApi = retrofit.create(KafkaApi.class);
 
-        Call<List<Topics>> call = kafkaApi.getTopics();
+        Call <List<String>> call = kafkaApi.getTopics();
 
-        call.enqueue(new Callback<List<Topics>>() {
+       call.enqueue(new Callback<List<String>>() {
             @Override
-            public void onResponse(Call<List<Topics>> call, Response<List<Topics>> response) {
+            public void onResponse(Call<List<String>> call, Response<List<String>> response) {
                 if(!response.isSuccessful()){
                     texvtViewResult.setText("Code: " + response.code());
                     return;
                 }
+                List<String> topics = response.body();
+                texvtViewResult.append(topics.toString());
 
-                List<Topics> topics = response.body();
-
-                for(Topics topic: topics){
-                    String content = "";
-                    content += "Topics: " + topic.getTopics() + "\n";
-
-                    texvtViewResult.append(content);
-                }
             }
 
             @Override
-            public void onFailure(Call<List<Topics>> call, Throwable t) {
+            public void onFailure(Call<List<String>> call, Throwable t) {
+                System.out.println("2");
+                if (t instanceof IOException)
+                    Toast.makeText(MainActivity.this, "this is an actual network failure :( inform the user and possibly retry", Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(MainActivity.this, "conversion issue! big problems :(", Toast.LENGTH_SHORT).show();
+
                 texvtViewResult.setText(t.getMessage());
             }
         });
