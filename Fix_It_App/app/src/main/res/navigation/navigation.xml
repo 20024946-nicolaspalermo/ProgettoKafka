@@ -8,12 +8,12 @@
 
     <fragment
         android:id="@+id/reportsFragment"
-        android:name="com.example.fix_it_app.ReportsFragment"
+        android:name="com.example.fix_it_app.Fragment.ReportsFragment"
         android:label="fragment_reports"
         tools:layout="@layout/fragment_reports" />
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.fix_it_app.ProfileFragment"
+        android:name="com.example.fix_it_app.Fragment.ProfileFragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" >
         <action

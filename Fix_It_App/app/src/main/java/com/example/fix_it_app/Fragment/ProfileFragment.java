@@ -1,4 +1,4 @@
-package com.example.fix_it_app;
+package com.example.fix_it_app.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.fix_it_app.Login.LoginActivity;
 import com.example.fix_it_app.Model.Users;
+import com.example.fix_it_app.R;
 import com.example.fix_it_app.Utili.Connection;
 import com.example.fix_it_app.Utili.Loading;
 import com.google.firebase.auth.FirebaseAuth;
