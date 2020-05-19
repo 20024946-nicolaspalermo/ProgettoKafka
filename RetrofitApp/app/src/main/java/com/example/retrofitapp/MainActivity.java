@@ -2,13 +2,17 @@ package com.example.retrofitapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.JsonObject;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -29,57 +33,26 @@ public class MainActivity extends AppCompatActivity {
 
         texvtViewResult = findViewById(R.id.text_view_result);
 
+        //getTopics();
+        //getPost();
+        //getConsumer();
+        //getSubscribeConsumer();
+        getConsumeJson();
+
+    }
+
+
+    private void getTopics(){
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.1.10:8082/")
+                .baseUrl("http://192.168.1.5:8082/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         KafkaApi kafkaApi = retrofit.create(KafkaApi.class);
+        Call <List<String>> call = kafkaApi.getTopics();
 
-        final Example example = new Example();
-        final ArrayList<Records> recordsArrayList = new ArrayList<>();
-        final Records records = new Records();
-        final Records recors_2 = new Records();
-        records.setKey("Name");
-        records.setValue("LLLLL");
-        recordsArrayList.add(records);
-        recors_2.setKey("Description");
-        recors_2.setValue("AAAAA");
-        recordsArrayList.add(recors_2);
-
-        example.setRecordsList(recordsArrayList);
-
-        Call<Void> call = kafkaApi.createPost(example);
-
-        call.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if(!response.isSuccessful()){
-                    texvtViewResult.setText("Code: " + response.code());
-                    return;
-                }
-                System.out.println("AAAAA" + recordsArrayList.toString());
-                response.body();
-
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                System.out.println("2");
-                if (t instanceof IOException)
-                    Toast.makeText(MainActivity.this, "this is an actual network failure :( inform the user and possibly retry", Toast.LENGTH_SHORT).show();
-                else
-                    Toast.makeText(MainActivity.this, "conversion issue! big problems :(", Toast.LENGTH_SHORT).show();
-
-                texvtViewResult.setText(t.getMessage());
-
-            }
-        });
-
-      /*  Call <List<String>> call = kafkaApi.getTopics();
-
-       call.enqueue(new Callback<List<String>>() {
+        call.enqueue(new Callback<List<String>>() {
             @Override
             public void onResponse(Call<List<String>> call, Response<List<String>> response) {
                 if(!response.isSuccessful()){
@@ -101,7 +74,182 @@ public class MainActivity extends AppCompatActivity {
 
                 texvtViewResult.setText(t.getMessage());
             }
-        });*/
+        });
     }
 
+    private void getPost(){
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://192.168.1.5:8082/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        KafkaApi kafkaApi = retrofit.create(KafkaApi.class);
+
+        final Example example = new Example();
+        final ArrayList<Records> recordsArrayList = new ArrayList<>();
+        final Records records = new Records();
+        records.setKey("Nuova");
+        records.setValue("Nuovo333");
+        recordsArrayList.add(records);
+
+        example.setRecordsList(recordsArrayList);
+
+        Call<Void> call = kafkaApi.createPost(example);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if(!response.isSuccessful()){
+                    texvtViewResult.setText("Code: " + response.code());
+                    return;
+                }
+                response.body();
+
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                if (t instanceof IOException)
+                    Toast.makeText(MainActivity.this, "this is an actual network failure :( inform the user and possibly retry", Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(MainActivity.this, "conversion issue! big problems :(", Toast.LENGTH_SHORT).show();
+
+                texvtViewResult.setText(t.getMessage());
+
+            }
+        });
+    }
+
+    private void getConsumer() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://192.168.1.5:8082/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        KafkaApi kafkaApi = retrofit.create(KafkaApi.class);
+
+
+        final Consumer consumer = new Consumer();
+        consumer.setName("prova26");
+        consumer.setFormat("json");
+        consumer.setAutoOffeset("earliest");
+        consumer.setAutoCommit("false");
+
+        Call<Void> call = kafkaApi.createConsumer(consumer);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if(!response.isSuccessful()){
+                    texvtViewResult.setText("CodeGetConsumer: " + response.code());
+                    return;
+                }
+                System.out.println("GET CONSUMER");
+            }
+
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                if (t instanceof IOException)
+                    Toast.makeText(MainActivity.this, "this is an actual network failure :( inform the user and possibly retry", Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(MainActivity.this, "conversion issue! big problems :(", Toast.LENGTH_SHORT).show();
+
+                texvtViewResult.setText(t.getMessage());
+            }
+        });
+    }
+
+    private void getSubscribeConsumer() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://192.168.1.5:8082/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        KafkaApi kafkaApi = retrofit.create(KafkaApi.class);
+
+        ConsumerSubiscribe consumerSubiscribe = new ConsumerSubiscribe();
+        ArrayList<String> str = new ArrayList<>();
+        str.add("prova_topic_new");
+        consumerSubiscribe.setRecordsList(str);
+
+        Call <Void> call = kafkaApi.subscribeConsumer(consumerSubiscribe);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if(!response.isSuccessful()){
+                    texvtViewResult.setText("CodeSubscribe: " + response.code());
+                    return;
+                }
+
+                System.out.println("GET SUBSCRIBE");
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                if (t instanceof IOException)
+                    Toast.makeText(MainActivity.this, "this is an actual network failure :( inform the user and possibly retry", Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(MainActivity.this, "conversion issue! big problems :(", Toast.LENGTH_SHORT).show();
+
+                texvtViewResult.setText(t.getMessage());
+            }
+        });
+    }
+
+    private void getConsumeJson(){
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+                    .connectTimeout(60, TimeUnit.SECONDS)
+                    .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://192.168.1.5:8082/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(okHttpClient)
+                .build();
+
+        KafkaApi kafkaApi = retrofit.create(KafkaApi.class);
+
+
+         Call<List<GetConsumer>> call = kafkaApi.getConsumerJson();
+
+                call.enqueue(new Callback<List<GetConsumer>>() {
+                    @Override
+                    public void onResponse(Call<List<GetConsumer>> call, Response<List<GetConsumer>> response) {
+                        if(!response.isSuccessful()){
+                            texvtViewResult.setText("CodeGETJSON: " + response.code());
+                            return;
+                        }
+                        List<GetConsumer> consumers = response.body();
+
+                        for (GetConsumer consumer: consumers){
+                            String content = "";
+                            content += "TOPIC: " + consumer.getTopic() + "\n";
+                            content += "KEY " + consumer.getKey() + "\n";
+                            content += "VALUE " + consumer.getValue() + "\n";
+                            content += "PARTITION " + consumer.getPartition() + "\n";
+                            content += "OFFSET " + consumer.getOffset() + "\n" + "\n";
+
+                            texvtViewResult.append(content);
+                        }
+
+                        System.out.println("GET CONSUMER JSON");
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<GetConsumer>> call, Throwable t) {
+                        if (t instanceof IOException)
+                            Toast.makeText(MainActivity.this, "TIME OUT CONSUME JSON", Toast.LENGTH_SHORT).show();
+                        else
+                            Toast.makeText(MainActivity.this, "TIME OUT CONSUME JSON2", Toast.LENGTH_SHORT).show();
+
+                        texvtViewResult.setText(t.getMessage());
+                    }
+                });
+
+            }
 }
