@@ -1,7 +1,10 @@
 package com.example.retrofitapp;
 
+import com.example.retrofitapp.prova_post.Value;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.ArrayList;
 
 public class GetConsumer {
     @SerializedName("topic")
@@ -12,7 +15,7 @@ public class GetConsumer {
     private String key;
     @SerializedName("value")
     @Expose
-    private String value;
+    private Value value;
     @SerializedName("partition")
     @Expose
     private Integer partition;
@@ -36,11 +39,11 @@ public class GetConsumer {
         this.key = key;
     }
 
-    public String getValue() {
+    public Value getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(Value value) {
         this.value = value;
     }
 

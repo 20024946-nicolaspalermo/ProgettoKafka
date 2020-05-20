@@ -1,5 +1,6 @@
 package com.example.retrofitapp;
 
+import com.example.retrofitapp.prova_post.ExampleReport;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public interface KafkaApi {
 
     })
     @POST("topics/prova_topic_new")
-    Call<Void>createPost(@Body Example example);
+    Call<Void>createPost(@Body ExampleReport exampleReport);
 
 
     @Headers({  "Host: com.example.retrofitapp",

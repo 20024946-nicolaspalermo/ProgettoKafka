@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.retrofitapp.prova_post.ExampleReport;
+import com.example.retrofitapp.prova_post.Report;
+import com.example.retrofitapp.prova_post.Value;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
@@ -80,22 +83,51 @@ public class MainActivity extends AppCompatActivity {
     private void getPost(){
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.1.5:8082/")
+                .baseUrl("http://192.168.1.9:8082/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         KafkaApi kafkaApi = retrofit.create(KafkaApi.class);
 
-        final Example example = new Example();
+        ExampleReport exampleReport = new ExampleReport();
+        ArrayList<Report> reportArrayList = new ArrayList<>();
+        Report report = new Report();
+        Value value = new Value();
+        Value value2 = new Value();
+        value.setName("Segnalazione123");
+        value.setDate("12/10/981");
+        value.setTime("11:281");
+        value.setPosition("Milano2");
+        value.setDescription("Descrizione4");
+        value.setCategory("Traffic4");
+        value.setPriority("Green4");
+
+        value2.setName("Segnalazione1245");
+        value2.setDate("12/10/98145");
+        value2.setTime("11:28415");
+        value2.setPosition("Milano254");
+        value2.setDescription("Descrizione44");
+        value2.setCategory("Traffic44");
+        value2.setPriority("Green44");
+
+        report.setKey("reports");
+        report.setValue(value);
+        report.setValue(value2);
+        reportArrayList.add(report);
+
+        exampleReport.setReports(reportArrayList);
+        Call<Void> call = kafkaApi.createPost(exampleReport);
+
+        /*final Example example = new Example();
         final ArrayList<Records> recordsArrayList = new ArrayList<>();
         final Records records = new Records();
         records.setKey("Nuova");
         records.setValue("Nuovo333");
         recordsArrayList.add(records);
+        example.setRecordsList(recordsArrayList);*/
 
-        example.setRecordsList(recordsArrayList);
 
-        Call<Void> call = kafkaApi.createPost(example);
+        //Call<Void> call = kafkaApi.createPost(example);
 
         call.enqueue(new Callback<Void>() {
             @Override
@@ -123,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void getConsumer() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.1.5:8082/")
+                .baseUrl("http://192.168.1.9:8082/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -163,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void getSubscribeConsumer() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.1.5:8082/")
+                .baseUrl("http://192.168.1.9:8082/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -206,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                     .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.1.5:8082/")
+                .baseUrl("http://192.168.1.9:8082/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(okHttpClient)
                 .build();
@@ -226,14 +258,37 @@ public class MainActivity extends AppCompatActivity {
                         List<GetConsumer> consumers = response.body();
 
                         for (GetConsumer consumer: consumers){
+                            Value value = new Value();
+
+                            value.setName(consumer.getValue().getName());
+                            System.out.println("AAAAAAAA " + value.getName());
+                            value.setPosition(consumer.getValue().getPosition());
+                            value.setDescription(consumer.getValue().getDescription());
+                            value.setCategory(consumer.getValue().getCategory());
+                            value.setPriority(consumer.getValue().getPriority());
+                            value.setDate(consumer.getValue().getDate());
+                            value.setTime(consumer.getValue().getTime());
+
+
                             String content = "";
                             content += "TOPIC: " + consumer.getTopic() + "\n";
                             content += "KEY " + consumer.getKey() + "\n";
-                            content += "VALUE " + consumer.getValue() + "\n";
+                            consumer.setValue(value);
+                            content += "VALUE " + "\n";
+                            content += "    NAME: " + consumer.getValue().getName() + "\n";
+                            content += "    DATE: " + consumer.getValue().getDate() + "\n";
+                            content += "    TINE " + consumer.getValue().getTime() + "\n";
+                            content += "    POSITION: " + consumer.getValue().getPosition() + "\n";
+                            content += "    DESCRIPTION: " + consumer.getValue().getDescription() + "\n";
+                            content += "    CATEGORY" + consumer.getValue().getCategory() + "\n";
+                            content += "    PRIORITY" + consumer.getValue().getPriority() + "\n";
+
                             content += "PARTITION " + consumer.getPartition() + "\n";
                             content += "OFFSET " + consumer.getOffset() + "\n" + "\n";
 
                             texvtViewResult.append(content);
+                            //System.out.println("CONTENT " + content);
+
                         }
 
                         System.out.println("GET CONSUMER JSON");
